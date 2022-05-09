@@ -1,7 +1,8 @@
 {
   "name": "@bradentest/pkg-a",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
+    "bla": "echo prepre",
     "format": "prettier -w .",
     "test": "echo test"
   },
