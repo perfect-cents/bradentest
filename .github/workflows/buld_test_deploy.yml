@@ -1,6 +1,7 @@
 name: Build, test, and deploy
 
 on:
+  workflow_dispatch: true
   pull_request:
     types: [closed]
     branches: [main, next]
