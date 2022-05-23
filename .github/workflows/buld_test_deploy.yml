@@ -1,7 +1,21 @@
 name: Build, test, and deploy
 
 on:
-  workflow_dispatch: true
+  workflow_dispatch:
+    inputs:
+      versionIncrement:
+        description: "Version Increment"
+        required: true
+        default: "warning"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - premajor
+          - preminor
+          - prepatch
+          - prerelease
   pull_request:
     types: [closed]
     branches: [main, next]
