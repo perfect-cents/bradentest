@@ -1,10 +1,13 @@
 {
   "name": "@bradentest/pkg-b",
   "version": "1.0.0",
+  "main": "./build/src/index.js",
+  "typings": "./build/src/index.d.ts",
   "scripts": {
     "format": "prettier -w ."
   },
   "dependencies": {
+    "@uauth/js": "^1.1.0",
     "np": "^7.6.1"
   },
   "devDependencies": {

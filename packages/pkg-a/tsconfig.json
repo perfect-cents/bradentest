@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build",
+    "baseUrl": ".",
+    "paths": {
+      "@bradentest/pkg-b": ["../pkg-b"]
+    }
+  },
+  "references": [
+    {
+      "path": "../pkg-b"
+    }
+  ]
+}

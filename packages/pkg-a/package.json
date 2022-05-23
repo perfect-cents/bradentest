@@ -1,12 +1,15 @@
 {
   "name": "@bradentest/pkg-a",
-  "version": "1.0.1",
+  "version": "1.0.2-0",
+  "main": "./build/src/index.js",
+  "typings": "./build/src/index.d.ts",
   "scripts": {
     "bla": "echo prepre",
     "format": "prettier -w .",
     "test": "echo test"
   },
   "dependencies": {
+    "@bradentest/pkg-b": "link:../pkg-b",
     "np": "^7.6.1"
   },
   "devDependencies": {
