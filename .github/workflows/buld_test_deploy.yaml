@@ -82,4 +82,4 @@ jobs:
         run: yarn version check
 
       - name: Publish
-        run: yarn workspaces foreach --verbose --no-private --topological-dev exec ../../scripts/publish.sh
+        run: yarn workspaces foreach --verbose --no-private --topological-dev run release && git push --tags

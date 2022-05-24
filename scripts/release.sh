@@ -4,14 +4,13 @@ set -e
 
 VERSION_JSON=$(yarn version apply --json)
 
-echo VERSION_JSON $VERSION_JSON
+if [ -n "$VERSION_JSON" ]; then
+  VERSION=$(node -e "console.log(($VERSION_JSON).newVersion)")
+  PKG_NAME=$(node -e "console.log(($VERSION_JSON).ident)")
 
-VERSION=$(node -e "console.log(($VERSION_JSON).newVersion)")
+  git add -u
+  git commit -m "$PKG_NAME@$VERSION"
+  git tag "$PKG_NAME@$VERSION"
 
-git add -u
-git commit -m "v$VERSION"
-git tag "v$VERSION"
-
-yarn npm publish --tolerate-republish
-
-git push --tags
+  yarn npm publish --tolerate-republish
+fi
