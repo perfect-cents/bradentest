@@ -12,18 +12,6 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  # test_push:
-  #   name: Build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Create report file
-  #       run: date +%s > report.txt
-
-  #     - run: git add report.txt
-  #     - run: git commit -m "Automated report"
-  #     - run: git push
-
   build:
     name: Build
     runs-on: ubuntu-latest
