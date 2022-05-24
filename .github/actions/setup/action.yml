@@ -19,6 +19,3 @@ runs:
 
     - run: yarn install --frozen-lockfile --prefer-offline --check-files
       shell: bash
-
-    - run: yarn build
-      shell: bash
