@@ -64,5 +64,8 @@ jobs:
       - name: Ensure Valid Versioning
         run: yarn version check
 
+      - run: git config --global user.email "login@unstoppabledomains.com"
+      - run: git config --global user.name "Unstoppable Domains Login Team"
+
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
