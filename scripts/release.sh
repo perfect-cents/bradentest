@@ -16,5 +16,5 @@ if [ -n "$VERSION_JSON" ]; then
 
   yarn npm publish --tolerate-republish --tag $TAG
 
-  git push --verbose HEAD:$GITHUB_HEAD_REF --tags
+  git push --tags
 fi
