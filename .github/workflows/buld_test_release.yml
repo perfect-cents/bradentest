@@ -65,9 +65,8 @@ jobs:
       - name: Ensure Valid Versioning
         run: yarn version check
 
-      - run: git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
-      - run: git config user.name ${{ github.actor }}
+      - run: git config user.name github-actions
+      - run: git config user.email github-actions@github.com
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
