@@ -1,0 +1,24 @@
+name: Setup
+description: Checkout, install, and build
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # - name: Fetch tags
+    #   run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        # TODO
+        # check-latest: true
+        cache: yarn
+
+    - run: yarn install --frozen-lockfile --prefer-offline --check-files
+      shell: bash
+
+    - run: yarn build
+      shell: bash
