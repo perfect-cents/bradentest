@@ -12,5 +12,9 @@ if [ -n "$VERSION_JSON" ]; then
   git commit -m "$PKG_NAME@$VERSION"
   git tag "$PKG_NAME@$VERSION"
 
-  yarn npm publish --tolerate-republish
+  [[ "$GITHUB_HEAD_REF" == 'release' ]] && TAG=latest || TAG=next
+
+  yarn npm publish --tolerate-republish --tag $TAG
+
+  git push --tags
 fi
