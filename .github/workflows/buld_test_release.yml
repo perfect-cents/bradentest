@@ -21,7 +21,8 @@ jobs:
         run: date +%s > report.txt
       - run: git config user.email ${{ github.actor }}@users.noreply.github.com
       - run: git config user.name ${{ github.actor }}
-      - run: git commit -am "Automated report"
+      - run: git add report.txt
+      - run: git commit -m "Automated report"
       - run: git push
 
   # build:
