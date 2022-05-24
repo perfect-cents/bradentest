@@ -1,20 +1,13 @@
 {
   "name": "@bradentest/pkg-b",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "main": "./build/src/index.js",
   "typings": "./build/src/index.d.ts",
   "scripts": {
-    "format": "prettier -w ."
+    "release": "../../scripts/release.sh"
   },
   "dependencies": {
-    "@uauth/js": "^1.1.0",
-    "np": "^7.6.1"
-  },
-  "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "3.2.0",
-    "prettier": "2.6.2",
-    "prettier-plugin-packagejson": "2.2.17",
-    "prettier-plugin-sh": "0.10.1"
+    "@uauth/js": "^1.1.0"
   },
   "publishConfig": {
     "access": "public"
