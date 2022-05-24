@@ -9,7 +9,6 @@ on:
 
 env:
   ENVIRONMENT: build
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -60,13 +59,13 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_number }}
 
       - name: Configure NPM Access Token
-        run: yarn config set 'npmRegistries["//npm.example.com"].npmAuthToken' "${{ secrets.NPM_TOKEN }}"
+        run: yarn config set 'npmAuthToken' "${{ secrets.NPM_TOKEN }}"
 
       - name: Ensure Valid Versioning
         run: yarn version check
 
-      - run: git config user.name github-actions
-      - run: git config user.email github-actions@github.com
+      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
+      - run: git config user.name ${{ github.actor }}
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
