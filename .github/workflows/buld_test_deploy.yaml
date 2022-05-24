@@ -81,9 +81,5 @@ jobs:
       - name: Ensure Valid Versioning
         run: yarn version check
 
-      - name: Apply Versioning
-        run: yarn version apply --all
-
-      # TODO Figure out if we should tolerate republish
-      - name: Publish # if: "!startsWith(inputs.versionIncrement, 'pre')"
-        run: yarn workspaces foreach --verbose --no-private --topological-dev npm publish --tolerate-republish
+      - name: Publish
+        run: yarn workspaces foreach --verbose --no-private --topological-dev exec ../../scripts/publish.sh
