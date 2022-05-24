@@ -15,4 +15,6 @@ if [ -n "$VERSION_JSON" ]; then
   [[ "$GITHUB_HEAD_REF" == 'release' ]] && TAG=latest || TAG=next
 
   yarn npm publish --tolerate-republish --tag $TAG
+
+  git push --tags
 fi

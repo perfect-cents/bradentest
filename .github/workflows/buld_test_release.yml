@@ -100,5 +100,3 @@ jobs:
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
-
-      - run: git push
