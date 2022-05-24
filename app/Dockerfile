@@ -12,7 +12,7 @@ ENV NODE_ENV production
 
 COPY . .
 
-RUN yarn install --frozen-lockfile --production --unsafe-perm
+RUN yarn install --immutable
 
 WORKDIR /app
 
