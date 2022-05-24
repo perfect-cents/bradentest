@@ -1,0 +1,5 @@
+releases:
+  "@bradentest/pkg-a": prerelease
+
+undecided:
+  - "@bradentest/pkg-b"
