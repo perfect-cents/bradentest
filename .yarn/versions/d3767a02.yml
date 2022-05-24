@@ -1,5 +1,2 @@
-releases:
-  "@bradentest/pkg-a": major
-
 declined:
   - "@bradentest/pkg-b"
