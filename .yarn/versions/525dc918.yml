@@ -1,0 +1,3 @@
+releases:
+  "@bradentest/pkg-a": major
+  "@bradentest/pkg-b": major
