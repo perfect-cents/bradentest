@@ -53,6 +53,18 @@ jobs:
       - name: Test
         run: yarn test
 
+  version_check:
+    name: Version Check
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Ensure Valid Versioning
+        run: yarn version check
+
   release:
     name: Release
     runs-on: ubuntu-latest

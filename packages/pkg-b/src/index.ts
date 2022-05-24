@@ -1,3 +1,3 @@
 export default async function main(): Promise<void> {
-  console.log("bla  asdf");
+  console.log("bla asdfasdf asdf asdf");
 }
