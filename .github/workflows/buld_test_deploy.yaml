@@ -2,20 +2,20 @@ name: Build, test, and deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      versionIncrement:
-        description: "Version Increment"
-        required: true
-        default: "warning"
-        type: choice
-        options:
-          - major
-          - minor
-          - patch
-          - premajor
-          - preminor
-          - prepatch
-          - prerelease
+    # inputs:
+    #   versionIncrement:
+    #     description: "Version Increment"
+    #     required: true
+    #     default: "warning"
+    #     type: choice
+    #     options:
+    #       - major
+    #       - minor
+    #       - patch
+    #       - premajor
+    #       - preminor
+    #       - prepatch
+    #       - prerelease
 
   pull_request:
     types: [closed]
@@ -83,16 +83,5 @@ jobs:
         run: yarn version apply --all
 
       # TODO Figure out if we should tolerate republish
-      - if: "!startsWith(inputs.versionIncrement, 'pre')"
+      - name: Publish # if: "!startsWith(inputs.versionIncrement, 'pre')"
         run: yarn workspaces foreach --verbose --no-private --topological-dev npm publish --tolerate-republish
-      - if: "startsWith(inputs.versionIncrement, 'pre')"
-        run: yarn workspaces foreach --verbose --no-private --topological-dev npm publish --tolerate-republish --tag next
-
-      # - run: ./scripts/publish-native.js $GITHUB_REF
-      # - run: ./scripts/publish-release.sh
-
-      # - uses: actions/cache@v3
-      #   id: restore-build
-      #   with:
-      #     path: ./*
-      #     key: ${{ github.sha }}-${{ github.run_number }}
