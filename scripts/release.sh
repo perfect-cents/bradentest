@@ -2,9 +2,13 @@
 
 set -e
 
-VERSION=$(node -e "console.log(($(yarn version apply --json)).newVersion)")
+VERSION_JSON=$(yarn version apply --json)
 
-git add package.json
+echo VERSION_JSON $VERSION_JSON
+
+VERSION=$(node -e "console.log(($VERSION_JSON).newVersion)")
+
+git add -u
 git commit -m "v$VERSION"
 git tag "v$VERSION"
 
