@@ -16,6 +16,7 @@ on:
           - preminor
           - prepatch
           - prerelease
+
   pull_request:
     types: [closed]
     branches: [main, next]
@@ -23,9 +24,21 @@ on:
 env:
   ENVIRONMENT: build
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+      - uses: actions/cache@v3
+        id: cache-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}-${{ github.run_number }}
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -49,22 +62,36 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [build, lint, test]
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/setup
-      - name: Build
-        run: yarn build
+      - uses: actions/cache@v3
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}-${{ github.run_number }}
+
       - name: Publish
         run: echo Publish
 
-      # - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - name: Configure NPM Access Token
+        run: yarn config set 'npmRegistries["//npm.example.com"].npmAuthToken' "${{ secrets.NPM_TOKEN }}"
+
+      - name: Ensure Valid Versioning
+        run: yarn version check
+
+      - name: Apply Versioning
+        run: yarn version apply --all
+
+      # TODO Figure out if we should tolerate republish
+      - if: "!startsWith(inputs.versionIncrement, 'pre')"
+        run: yarn workspaces foreach --verbose --no-private --topological-dev npm publish --tolerate-republish
+      - if: "startsWith(inputs.versionIncrement, 'pre')"
+        run: yarn workspaces foreach --verbose --no-private --topological-dev npm publish --tolerate-republish --tag next
+
       # - run: ./scripts/publish-native.js $GITHUB_REF
       # - run: ./scripts/publish-release.sh
 
       # - uses: actions/cache@v3
-      #   if: ${{needs.build.outputs.docsChange != 'docs only change'}}
       #   id: restore-build
       #   with:
       #     path: ./*

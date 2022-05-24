@@ -1,6 +1,6 @@
 {
   "name": "@bradentest/pkg-a",
-  "version": "1.0.2-0",
+  "version": "3.0.3",
   "main": "./build/src/index.js",
   "typings": "./build/src/index.d.ts",
   "scripts": {
@@ -9,7 +9,7 @@
     "test": "echo test"
   },
   "dependencies": {
-    "@bradentest/pkg-b": "link:../pkg-b",
+    "@bradentest/pkg-b": "workspace:*",
     "np": "^7.6.1"
   },
   "devDependencies": {
