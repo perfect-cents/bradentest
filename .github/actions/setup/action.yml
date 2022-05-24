@@ -17,5 +17,5 @@ runs:
         # check-latest: true
         cache: yarn
 
-    - run: yarn install --immutable --immutable-cache --check-cache
+    - run: yarn install --immutable
       shell: bash
