@@ -17,5 +17,5 @@ runs:
         # check-latest: true
         cache: yarn
 
-    - run: yarn install --frozen-lockfile --prefer-offline --check-files
+    - run: yarn install --frozen-lockfile --prefer-offline
       shell: bash
