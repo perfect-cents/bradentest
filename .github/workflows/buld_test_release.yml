@@ -1,6 +1,7 @@
 name: Build, test, and release
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize]
   push:
@@ -49,7 +50,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name != 'pull_request' }}
     needs: [build, lint, test]
     steps:
       - uses: actions/cache@v3
@@ -63,6 +64,9 @@ jobs:
 
       - name: Ensure Valid Versioning
         run: yarn version check
+
+      - run: git config --global user.email "login@unstoppabledomains.com"
+      - run: git config --global user.name "Unstoppable Domains Login Team"
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
