@@ -12,18 +12,18 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  test_push:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Create report file
-        run: date +%s > report.txt
-      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
-      - run: git config user.name ${{ github.actor }}
-      - run: git add report.txt
-      - run: git commit -m "Automated report"
-      - run: git push
+  # test_push:
+  #   name: Build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Create report file
+  #       run: date +%s > report.txt
+  #     - run: git config user.email ${{ github.actor }}@users.noreply.github.com
+  #     - run: git config user.name ${{ github.actor }}
+  #     - run: git add report.txt
+  #     - run: git commit -m "Automated report"
+  #     - run: git push
 
   build:
     name: Build
