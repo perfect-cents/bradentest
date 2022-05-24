@@ -16,5 +16,5 @@ if [ -n "$VERSION_JSON" ]; then
 
   yarn npm publish --tolerate-republish --tag $TAG
 
-  git push --tags
+  git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$INPUT_REPO.git" --tags
 fi
