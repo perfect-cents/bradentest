@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   push:
-    branches: [release, next]
+    branches: [main, next]
 
 env:
   ENVIRONMENT: build
@@ -46,8 +46,8 @@ jobs:
       - name: Test
         run: yarn test
 
-  publish:
-    name: Publish
+  release:
+    name: Release
     runs-on: ubuntu-latest
     needs: [build, lint, test]
     steps:
@@ -56,9 +56,6 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}-${{ github.run_number }}
-
-      - name: Publish
-        run: echo Publish
 
       - name: Configure NPM Access Token
         run: yarn config set 'npmRegistries["//npm.example.com"].npmAuthToken' "${{ secrets.NPM_TOKEN }}"
