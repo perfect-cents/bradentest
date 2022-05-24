@@ -1,8 +1,5 @@
 name: Build, test, and release
 
-permissions:
-  contents: write
-
 on:
   workflow_dispatch:
   pull_request:
@@ -12,6 +9,7 @@ on:
 
 env:
   ENVIRONMENT: build
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -67,11 +65,9 @@ jobs:
       - name: Ensure Valid Versioning
         run: yarn version check
 
-      - run: git config user.email github-actions@github.com
-      - run: git config user.name github-actions
-
-      # - run: git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      # - run: git config --local user.name "github-actions[bot]"
+      - run: git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
+      - run: git config user.name ${{ github.actor }}
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
