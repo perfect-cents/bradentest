@@ -12,26 +12,6 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  # test_push:
-  #   name: Test Push
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/cache@v3
-  #       id: restore-build
-  #       with:
-  #         path: "**/build"
-  #         key: ${{ github.sha }}-${{ github.run_number }}
-
-  #     - name: Create report file
-  #       run: date +%s > report.txt
-  #     - run: git config user.email ${{ github.actor }}@users.noreply.github.com
-  #     - run: git config user.name ${{ github.actor }}
-  #     - run: git add report.txt
-  #     - run: git commit -m "Automated report"
-  #     - run: git push
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -80,6 +60,8 @@ jobs:
     needs: [build, lint, test]
     steps:
       - uses: actions/checkout@v3
+      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
+      - run: git config user.name ${{ github.actor }}
       - name: Setup
         uses: ./.github/actions/setup
       - uses: actions/cache@v3
@@ -89,14 +71,10 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_number }}
 
       - name: Configure NPM Access Token
-        run: yarn config set 'npmAuthToken' "${{ secrets.NPM_TOKEN }}"
+        run: yarn config set npmAuthToken "${{ secrets.NPM_TOKEN }}"
 
       - name: Ensure Valid Versioning
         run: yarn version check
-
-      # - run: git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
-      - run: git config user.name ${{ github.actor }}
 
       - name: Release
         run: yarn workspaces foreach --verbose --no-private --topological-dev run release
