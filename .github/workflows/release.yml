@@ -27,18 +27,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/setup
-      - run: |-
+
+      - name: Branch Protection
+        run: |-
           if ${{ inputs.env == 'production' && github.ref_name != 'main' }}; then
             exit 1
           fi
 
       - name: Tag and push
         run: |-
-          STAGING=${{ inputs.env == 'staging' && 'staging/' }}
+          STAGING=${{ inputs.env == 'staging' && 'staging/' || '' }}
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(node -e 'console.log("${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
+          SLUG=$(node -e 'console.log("asdfasdf${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
           TAG=release/$STAGING$DATE/$SLUG
 
           echo STAGING $STAGING
