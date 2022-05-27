@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        options: [staging, production]
+        description: Environment
+        required: true
+        default: staging
+      title:
+        type: string
+        description: Title
+        required: true
+      message:
+        type: string
+        description: Message
+        required: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: |-
+          if ${{ inputs.env == 'production' && github.ref_name !== 'main' }}; then
+            exit 1
+          fi
+
+      - name: Tag and push
+        run: |-
+          TAG=release/${{ inputs.env == 'staging' && 'staging/' || '/' }}$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')/$(node -e 'console.log("${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
+          git tag -a $TAG -m ${{ inputs.message }}
+          git push --tags
