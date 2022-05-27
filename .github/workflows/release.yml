@@ -36,6 +36,15 @@ jobs:
 
       - name: Tag and push
         run: |-
-          TAG=release/${{ inputs.env == 'staging' && 'staging/' || '/' }}$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')/$(node -e 'console.log("${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
+          STAGING=${{ inputs.env == 'staging' && 'staging/' }}
+          DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
+          SLUG=$(node -e 'console.log("${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
+          TAG=release/$STAGING$DATE/$SLUG
+
+          echo STAGING $STAGING
+          echo DATE $DATE
+          echo SLUG $SLUG
+          echo TAG $TAG
+
           git tag -a "$TAG" -m '${{ inputs.message }}'
           git push --tags
