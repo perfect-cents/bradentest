@@ -38,7 +38,7 @@ jobs:
         run: |-
           STAGING=${{ inputs.env == 'staging' && 'staging/' || '' }}
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(node -e 'console.log("asdfasdf${{ inputs.title }}".trim().replace(/([a-z])([A-Z])/g, "$1-$2").replace(/\W/g, (m) => (/[À-ž]/.test(m) ? m : "-")).replace(/-+/g, "-").replace(/^-+|-+$/g, "").toLowerCase())')
+          SLUG=$(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
           TAG=release/$STAGING$DATE/$SLUG
 
           echo STAGING $STAGING
