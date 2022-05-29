@@ -3,12 +3,6 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      env:
-        type: choice
-        options: [staging, production]
-        description: Environment
-        required: true
-        default: staging
       title:
         type: string
         description: Title
@@ -17,6 +11,20 @@ on:
         type: string
         description: Message
         required: true
+      slug:
+        type: string
+        description: Slug
+        required: false
+      existingCommit:
+        type: string
+        description: Existing Commit
+        required: false
+      existingTag:
+        type: string
+        description: Existing Tag
+        required: false
+
+# git merge-base --is-ancestor 2fc4217fb3dc22d8c943cd6285b1f6aeff179a54 HEAD
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,25 +34,27 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses:
+          actions/checkout@v3
 
-      - name: Branch Protection
+          # $(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
+      - id: tag
+        name: Tag
         run: |-
-          if ${{ inputs.env == 'production' && github.ref_name != 'main' }}; then
-            exit 1
+          if [ -n "${{ inputs.existingTag }}"]; then
+            echo name=TAG::${{ inputs.existingTag }}
+          else
+            DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
+            SLUG="${{ inputs.title }}"
+            TAG=release/$DATE/$SLUG
+
+            echo releases/${{ inputs.env == 'staging' && 'staging/' || '' }}
           fi
 
-      - name: Tag and push
-        run: |-
-          STAGING=${{ inputs.env == 'staging' && 'staging/' || '' }}
-          DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
-          TAG=release/$STAGING$DATE/$SLUG
-
-          echo STAGING $STAGING
-          echo DATE $DATE
-          echo SLUG $SLUG
-          echo TAG $TAG
-
-          git tag -a "$TAG" -m '${{ inputs.message }}'
-          git push --tags
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "release.tar.gz,foo/*.txt"
+          name: ${{ inputs.name }}
+          prerelease: github.ref_name != 'main'
+          body: |-
+            Some automated release body
