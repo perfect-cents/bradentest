@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       commit: ${{ steps.ancestor.outputs.commit || github.sha }}
-      isProduction: ${{ (github.head_ref || github.ref_name) === 'main' }}
+      isProduction: ${{ (github.head_ref || github.ref_name) == 'main' }}
     steps:
       - if: inputs.upstreamCommit
         run: |-
