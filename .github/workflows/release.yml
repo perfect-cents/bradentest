@@ -58,6 +58,15 @@ jobs:
           # TODO Find a reasonable default
           fetch-depth: 0
 
+      - if: github.event.inputs.upstreamCommit
+        id: upstreamCommit
+        name: Check Upstream Commit
+        run: |-
+          git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
+          echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
+
+      - run: git checkout ${{ jobs.upstreamCommit.outputs.commit }}
+
       - run: git config user.email ${{ github.actor }}@users.noreply.github.com
       - run: git config user.name ${{ github.actor }}
 
@@ -73,11 +82,6 @@ jobs:
           level: ${{ github.ref_name == 'main' && 'major' || 'prerelease' }}
 
       - run: echo ${{ steps.bump-semver.outputs.new_version }}
-      # - if: github.event.inputs.upstreamCommit
-      #   name: Check Upstream Commit
-      #   run: |-
-      #     git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
-      #     echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
 
       # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
       # git push --tags
