@@ -5,7 +5,7 @@ on:
     inputs:
       title:
         type: string
-        description: Title
+        description: Release title
         required: false
       upstreamCommit:
         type: string
@@ -43,32 +43,36 @@ env:
   NEXT_PUBLIC_APP_ENV: ${{ fromJSON('{"main":"production","staging":"staging"}')[github.head_ref || github.ref_name] }}
 
 jobs:
-  get_commit:
-    name: Get Commit
+  release_metadata:
+    name: Generate Release Metadata
     runs-on: ubuntu-latest
     outputs:
       commit: ${{ steps.ancestor.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
         with:
+          # TODO Find a reasonable default
           fetch-depth: 0
       - if: github.event.inputs.upstreamCommit
+        name: Check Upstream Commit
         run: |-
           git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
           echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
-      - run: |-
+      - id: tag
+        name: Generate Tag
+        # git tag -a "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
+        run: |-
           PREFIX=${{  github.ref_name == 'main' && 'production' || 'staging' }}
           SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
+          SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr '[:upper:]' '[:lower:]')
 
-          echo title ${{ github.event.inputs.title }} "${{ github.event.inputs.title }}" '${{ github.event.inputs.title }}'
+          TAG="$PREFIX/$SHORT_SHA/$DATE/$SLUG"
 
-          echo PREFIX $PREFIX
-          echo SHORT_SHA $SHORT_SHA
-          echo DATE $DATE
-          echo SLUG $SLUG
+          echo ::set-output name=tag::"$TAG"
 
+          git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
 
-          echo "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
+          git push --tags
