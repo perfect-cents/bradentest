@@ -49,51 +49,61 @@ jobs:
     permissions:
       contents: write
     outputs:
-      commit: ${{ steps.ancestor.outputs.commit || github.sha }}
+      commit: ${{ steps.upstream-commit.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
-      tag: ${{ steps.tag.outputs.tag }}
+      tag: ${{ steps.bump-semver.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           # TODO Find a reasonable default
           fetch-depth: 0
 
       - if: github.event.inputs.upstreamCommit
+        name: Validate Upstream Commit
         id: upstream-commit
-        name: Check Upstream Commit
         run: |-
           git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
           echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
 
-      - run: git checkout ${{ steps.upstream-commit.outputs.commit }}
+      - name: Configure Git User
+        run: |-
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git config user.name ${{ github.actor }}
 
-      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
-      - run: git config user.name ${{ github.actor }}
-
-      - uses: actions-ecosystem/action-get-latest-tag@v1
+      - name: Get Latest Tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
         with:
           semver_only: true
 
-      - uses: actions-ecosystem/action-bump-semver@v1
+      - name: Bump Version
+        uses: actions-ecosystem/action-bump-semver@v1
         id: bump-semver
         with:
           current_version: ${{ steps.get-latest-tag.outputs.tag }}
           level: ${{ github.ref_name == 'main' && 'major' || 'prerelease' }}
 
-      - run: echo ${{ steps.bump-semver.outputs.new_version }}
+      # TODO Make a full release
+      - name: Push Tag
+        run: |-
+          git tag -a "${{ steps.bump-semver.outputs.new_version }}" -m "${{ github.event.inputs.title }}"
+          git push origin "${{ steps.bump-semver.outputs.new_version }}"
 
-      # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
-      # git push --tags
+      - id: changelog
+        name: "Generate Changelog"
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sinceTag: ${{ steps.get-latest-tag.outputs.tag }}
+          dueTag: ${{ steps.bump-semver.outputs.new_version }}
 
-      # - run: echo "Title" >> somefile.txt
-      # with:
-      #   allowUpdates: true
-      #   commit: ${{ steps.ancestor.outputs.commit || github.sha }}
-      #   name: ${{ github.event.inputs.title }}
-      #   prerelease: ${{ github.ref_name != 'main' }}
-      #   tag: ${{ steps.tag.outputs.tag }}
-      #   artifacts: "somefile.txt"
-
-      #   body: |-
-      #     Some body text
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.bump-semver.outputs.new_version }}
+          release_name: ${{ github.event.inputs.title }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ github.ref_name == 'main' }}
