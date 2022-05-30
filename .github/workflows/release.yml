@@ -63,6 +63,8 @@ jobs:
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
           SLUG=$(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
 
+          echo title ${{ inputs.title }} "${{ inputs.title }}" '${{ inputs.title }}'
+
           echo PREFIX $PREFIX
           echo SHORT_SHA $SHORT_SHA
           echo DATE $DATE
