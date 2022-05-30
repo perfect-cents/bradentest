@@ -46,6 +46,8 @@ jobs:
   release_metadata:
     name: Generate Release Metadata
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       commit: ${{ steps.ancestor.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
@@ -77,6 +79,15 @@ jobs:
 
           echo ::set-output name=tag::"$TAG"
 
-          git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
-
-          git push --tags
+      # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
+      # git push --tags
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "release.tar.gz,foo/*.txt"
+          commit: ${{ steps.ancestor.outputs.commit || github.sha }}
+          name: ${{ github.event.inputs.title }}
+          prerelease: ${{ github.ref_name == 'main' }}
+          tag: ${{ steps.tag.outputs.tag }}
+          body: |-
+            Some body text
+          token: ${{ secrets.GITHUB_TOKEN }}
