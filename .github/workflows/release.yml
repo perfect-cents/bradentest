@@ -70,24 +70,32 @@ jobs:
         name: Generate Tag
         # git tag -a "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
         run: |-
-          PREFIX=${{  github.ref_name == 'main' && 'production' || 'staging' }}
+          PREFIX=${{  github.ref_name == 'main' && 'release' || 'prerelease' }}
           SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
           SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr '[:upper:]' '[:lower:]')
 
-          TAG="$PREFIX/$SHORT_SHA/$DATE/$SLUG"
-
-          echo ::set-output name=tag::"$TAG"
+          echo ::set-output name=tag::"$PREFIX/$SLUG/$DATE/$SHORT_SHA"
 
       # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
       # git push --tags
+
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "release.tar.gz,foo/*.txt"
+          allowUpdates: true
           commit: ${{ steps.ancestor.outputs.commit || github.sha }}
           name: ${{ github.event.inputs.title }}
-          prerelease: ${{ github.ref_name == 'main' }}
+          prerelease: ${{ github.ref_name != 'main' }}
           tag: ${{ steps.tag.outputs.tag }}
           body: |-
             Some body text
-          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: echo "Title" >> somefile.txt
+      - uses: ncipollo/release-action@v1
+        with:
+          commit: ${{ steps.ancestor.outputs.commit || github.sha }}
+          tag: ${{ steps.tag.outputs.tag }}
+          artifacts: "somefile.txt"
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
