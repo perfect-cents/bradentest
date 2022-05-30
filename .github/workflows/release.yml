@@ -80,6 +80,8 @@ jobs:
       # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
       # git push --tags
 
+      - run: echo "Title" >> somefile.txt
+
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
@@ -87,15 +89,7 @@ jobs:
           name: ${{ github.event.inputs.title }}
           prerelease: ${{ github.ref_name != 'main' }}
           tag: ${{ steps.tag.outputs.tag }}
+          artifacts: "somefile.txt"
+
           body: |-
             Some body text
-
-      - run: echo "Title" >> somefile.txt
-      - uses: ncipollo/release-action@v1
-        with:
-          commit: ${{ steps.ancestor.outputs.commit || github.sha }}
-          tag: ${{ steps.tag.outputs.tag }}
-          artifacts: "somefile.txt"
-          omitBodyDuringUpdate: true
-          omitNameDuringUpdate: true
-          omitPrereleaseDuringUpdate: true
