@@ -70,7 +70,7 @@ jobs:
         id: bump-semver
         with:
           current_version: ${{ steps.get-latest-tag.outputs.tag }}
-          level: ${{ jobs.release_metadata.outputs.isProduction && 'major' || 'prerelease' }}
+          level: ${{ github.ref_name == 'main' && 'major' || 'prerelease' }}
 
       - run: echo ${{ steps.bump-semver.outputs.new_version }}
       # - if: github.event.inputs.upstreamCommit
