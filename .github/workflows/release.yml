@@ -3,6 +3,12 @@ name: Test, and deploy
 on:
   workflow_dispatch:
     inputs:
+      bump:
+        type: choice
+        options: [major, minor, patch]
+        description: Version Bump
+        default: minor
+        required: true
       title:
         type: string
         description: Release title
@@ -61,35 +67,45 @@ jobs:
       - run: git config user.email ${{ github.actor }}@users.noreply.github.com
       - run: git config user.name ${{ github.actor }}
 
-      - if: github.event.inputs.upstreamCommit
-        name: Check Upstream Commit
-        run: |-
-          git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
-          echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
-      - id: tag
-        name: Generate Tag
-        # git tag -a "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
-        run: |-
-          PREFIX=${{  github.ref_name == 'main' && 'release' || 'prerelease' }}
-          SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
-          DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr '[:upper:]' '[:lower:]')
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
 
-          echo ::set-output name=tag::"$PREFIX/$SLUG/$DATE/$SHORT_SHA"
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+
+      - run: echo ${{ steps.bump-semver.outputs.tag }}
+      # - if: github.event.inputs.upstreamCommit
+      #   name: Check Upstream Commit
+      #   run: |-
+      #     git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
+      #     echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
+
+      # - id: tag
+      #   name: Generate Tag
+      #   # git tag -a "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
+      #   run: |-
+      #     PREFIX=${{  github.ref_name == 'main' && 'release' || 'prerelease' }}
+
+      #     DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
+      #     SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr '[:upper:]' '[:lower:]')
+
+      #     $(git tag | sort -r --version-sort | head -n1)
+
+      #     echo ::set-output name=tag::"$PREFIX/$SLUG/$DATE"
 
       # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
       # git push --tags
 
-      - run: echo "Title" >> somefile.txt
+      # - run: echo "Title" >> somefile.txt
+      # with:
+      #   allowUpdates: true
+      #   commit: ${{ steps.ancestor.outputs.commit || github.sha }}
+      #   name: ${{ github.event.inputs.title }}
+      #   prerelease: ${{ github.ref_name != 'main' }}
+      #   tag: ${{ steps.tag.outputs.tag }}
+      #   artifacts: "somefile.txt"
 
-      - uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          commit: ${{ steps.ancestor.outputs.commit || github.sha }}
-          name: ${{ github.event.inputs.title }}
-          prerelease: ${{ github.ref_name != 'main' }}
-          tag: ${{ steps.tag.outputs.tag }}
-          artifacts: "somefile.txt"
-
-          body: |-
-            Some body text
+      #   body: |-
+      #     Some body text
