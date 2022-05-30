@@ -55,7 +55,7 @@ jobs:
           git merge-base --is-ancestor ${{ inputs.upstreamCommit }} HEAD
           echo ::set-output name=commit::$(git rev-parse ${{ inputs.upstreamCommit }})
       - run: |-
-          PREFIX=${{ (github.head_ref || github.ref_name) == 'main' && "production" || "staging"}}
+          PREFIX=${{ (github.head_ref || github.ref_name) == 'main' && 'production' || 'staging' }}
           SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
           SLUG=$(echo 'My Dire ctoryFileLine' | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
