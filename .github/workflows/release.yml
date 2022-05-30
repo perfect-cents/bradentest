@@ -55,6 +55,10 @@ jobs:
         with:
           # TODO Find a reasonable default
           fetch-depth: 0
+
+      - run: git config user.email ${{ github.actor }}@users.noreply.github.com
+      - run: git config user.name ${{ github.actor }}
+
       - if: github.event.inputs.upstreamCommit
         name: Check Upstream Commit
         run: |-
