@@ -50,6 +50,9 @@ jobs:
       commit: ${{ steps.ancestor.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - if: inputs.upstreamCommit
         run: |-
           git merge-base --is-ancestor ${{ inputs.upstreamCommit }} HEAD
