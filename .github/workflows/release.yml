@@ -49,6 +49,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: read
     outputs:
       commit: ${{ steps.upstream-commit.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
