@@ -3,12 +3,6 @@ name: Test, and deploy
 on:
   workflow_dispatch:
     inputs:
-      bump:
-        type: choice
-        options: [major, minor, patch]
-        description: Version Bump
-        default: minor
-        required: true
       title:
         type: string
         description: Release title
@@ -76,7 +70,7 @@ jobs:
         id: bump-semver
         with:
           current_version: ${{ steps.get-latest-tag.outputs.tag }}
-          level: ${{ github.event.inputs.bump }}
+          level: ${{ jobs.release_metadata.outputs.isProduction && 'major' || 'prerelease' }}
 
       - run: echo ${{ steps.bump-semver.outputs.new_version }}
       # - if: github.event.inputs.upstreamCommit
@@ -84,19 +78,6 @@ jobs:
       #   run: |-
       #     git merge-base --is-ancestor ${{ github.event.inputs.upstreamCommit }} HEAD
       #     echo ::set-output name=commit::$(git rev-parse ${{ github.event.inputs.upstreamCommit }})
-
-      # - id: tag
-      #   name: Generate Tag
-      #   # git tag -a "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ github.event.inputs.title }}"
-      #   run: |-
-      #     PREFIX=${{  github.ref_name == 'main' && 'release' || 'prerelease' }}
-
-      #     DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-      #     SLUG=$(echo "${{ github.event.inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr '[:upper:]' '[:lower:]')
-
-      #     $(git tag | sort -r --version-sort | head -n1)
-
-      #     echo ::set-output name=tag::"$PREFIX/$SLUG/$DATE"
 
       # git tag -a "$TAG" -m "${{ github.event.inputs.title }}"
       # git push --tags
