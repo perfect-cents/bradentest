@@ -48,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     outputs:
       commit: ${{ steps.upstream-commit.outputs.commit || github.sha }}
       isProduction: ${{ github.ref_name == 'main' }}
@@ -86,9 +87,9 @@ jobs:
 
       # TODO Make a full release
       - name: Push Tag
+        # git push origin "${{ steps.bump-semver.outputs.new_version }}"
         run: |-
           git tag -a "${{ steps.bump-semver.outputs.new_version }}" -m "${{ github.event.inputs.title }}"
-          git push origin "${{ steps.bump-semver.outputs.new_version }}"
 
       - id: changelog
         name: "Generate Changelog"
