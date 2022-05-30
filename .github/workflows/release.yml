@@ -2,7 +2,7 @@ name: Test, and deploy
 
 on:
   workflow_dispatch:
-    github.event.inputs:
+    inputs:
       title:
         type: string
         description: Title
