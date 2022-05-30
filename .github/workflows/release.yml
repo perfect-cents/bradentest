@@ -61,7 +61,7 @@ jobs:
           PREFIX=${{  github.ref_name == 'main' && 'production' || 'staging' }}
           SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
           DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-          SLUG=$(echo '${{ inputs.title }}' | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
+          SLUG=$(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
 
           echo PREFIX $PREFIX
           echo SHORT_SHA $SHORT_SHA
