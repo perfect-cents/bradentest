@@ -97,6 +97,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sinceTag: ${{ steps.get-latest-tag.outputs.tag }}
           dueTag: ${{ steps.bump-semver.outputs.new_version }}
+          maxIssues: 50
 
       - name: Create Release
         id: create-release
