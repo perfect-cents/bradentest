@@ -76,8 +76,9 @@ jobs:
         id: bump-semver
         with:
           current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ github.event.inputs.bump }}
 
-      - run: echo ${{ steps.bump-semver.outputs.tag }}
+      - run: echo ${{ steps.bump-semver.outputs.new_version }}
       # - if: github.event.inputs.upstreamCommit
       #   name: Check Upstream Commit
       #   run: |-
