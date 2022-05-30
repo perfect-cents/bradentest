@@ -1,4 +1,4 @@
-name: Release
+name: Test, and deploy
 
 on:
   workflow_dispatch:
@@ -6,55 +6,58 @@ on:
       title:
         type: string
         description: Title
+        required: false
+      upstreamCommit:
+        type: string
+        description: Upstream commit
+        required: false
+      deployIdentity:
+        type: boolean
+        description: Deploy identity
         required: true
-      message:
-        type: string
-        description: Message
+        default: false
+      deployDashboard:
+        type: boolean
+        description: Deploy dashboard
         required: true
-      slug:
-        type: string
-        description: Slug
-        required: false
-      existingCommit:
-        type: string
-        description: Existing Commit
-        required: false
-      existingTag:
-        type: string
-        description: Existing Tag
-        required: false
-
-# git merge-base --is-ancestor 2fc4217fb3dc22d8c943cd6285b1f6aeff179a54 HEAD
+        default: false
+      deployExample:
+        type: boolean
+        description: Deploy example
+        required: true
+        default: false
+      deployHydraPublic:
+        type: boolean
+        description: Deploy hydra public
+        required: true
+        default: false
+      deployHydraAdmin:
+        type: boolean
+        description: Deploy hydra admin
+        required: true
+        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PROJECT_ID: ${{ fromJSON('{"main":"unstoppable-domains","staging":"unstoppable-domains-staging"}')[github.head_ref || github.ref_name] }}
+  NEXT_PUBLIC_APP_ENV: ${{ fromJSON('{"main":"production","staging":"staging"}')[github.head_ref || github.ref_name] }}
 
 jobs:
-  release:
-    name: Release
+  get_commit:
+    name: Get Commit
     runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.ancestor.outputs.commit || github.sha }}
+      isProduction: ${{ (github.head_ref || github.ref_name) === 'main' }}
     steps:
-      - uses:
-          actions/checkout@v3
-
-          # $(echo "${{ inputs.title }}" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
-      - id: tag
-        name: Tag
+      - if: inputs.upstreamCommit
         run: |-
-          if [ -n "${{ inputs.existingTag }}"]; then
-            echo name=TAG::${{ inputs.existingTag }}
-          else
-            DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
-            SLUG="${{ inputs.title }}"
-            TAG=release/$DATE/$SLUG
+          git merge-base --is-ancestor ${{ inputs.upstreamCommit }} HEAD
+          echo ::set-output name=commit::$(git rev-parse ${{ inputs.upstreamCommit }})
+      - run: |-
+          PREFIX=${{ (github.head_ref || github.ref_name) === 'main' && "production" || "staging"}}
+          SHORT_SHA=$(git rev-parse --short ${{ steps.ancestor.outputs.commit || github.sha }})
+          DATE=$(date +%Y.%b.%d | cut -b 3- | tr '[:upper:]' '[:lower:]')
+          SLUG=$(echo 'My Dire ctoryFileLine' | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+\$//g | tr A-Z a-z       )
 
-            echo releases/${{ inputs.env == 'staging' && 'staging/' || '' }}
-          fi
-
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "release.tar.gz,foo/*.txt"
-          name: ${{ inputs.name }}
-          prerelease: github.ref_name != 'main'
-          body: |-
-            Some automated release body
+          echo "$PREFIX/$SHORT_SHA/$DATE/$SLUG" -m "${{ inputs.title }}"

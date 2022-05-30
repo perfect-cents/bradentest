@@ -1,0 +1,10 @@
+# Title: Summary, imperative, start upper case, don't end with a period
+# No more than 50 chars. The 50th char is here:  #
+
+# Remember blank line between title and body.
+
+# Body: Explain *what* and *why* (not *how*). Include task ID (Jira issue).
+# Wrap at 72 chars. ################################## which is here:  #
+
+# Resolves: #123
+# See also: #456, #789
