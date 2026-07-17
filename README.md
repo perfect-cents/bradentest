@@ -1,5 +1,19 @@
 # Workflows
 
+## Usage
+
+Install dependencies:
+
+```sh
+yarn install
+```
+
+Run the test suite:
+
+```sh
+yarn test
+```
+
 ## Stage all changes to tracked files
 
 ```
