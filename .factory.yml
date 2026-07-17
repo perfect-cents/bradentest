@@ -1,0 +1,8 @@
+version: 1
+merge: auto
+policies:
+  default:
+    allow: ["**"]
+    deny: [".github/**"]
+labels:
+  factory: default
