@@ -222,3 +222,7 @@ Deploy hotfix and deploy all services
 /deploy hotfix all
 ```
 ````
+
+## License
+
+This project is licensed under the MIT License.
